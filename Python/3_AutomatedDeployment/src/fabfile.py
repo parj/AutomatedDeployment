@@ -26,8 +26,8 @@ def vmstat():
     run('vmstat')
 
 def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
-    """ 
-    Rsyncs from localhost to a remote directory to run
+    """
+    Rsyncs from localhost to a remote directory
     
     @type fromDirectory: String
     @param fromDirectory: The directory which is to copied from localhost
@@ -50,9 +50,9 @@ def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
     rsync = 'rsync -av ' + fromDirectory + ' ' + toUser + '@' + toServer + ':' + toDirectory
     local(rsync)
 
-def deployLicence(licenceFile=None):
-    """ 
-    Used for deploying the licence of an application. 
+def murex_deployLicence(licenceFile=None):
+    """
+    Used for deploying the licence of Murex. 
     1. It backups the path specified in the variable folderToBackup
     2. The backup is named backup_2010_11_12_12_30_59.zip [Year_Month_Date_Hour_Min_Sec]
     3. The backup zip is stored in the path specified in the variable archiveFolder
@@ -87,25 +87,25 @@ def deployLicence(licenceFile=None):
     run('mkdir -p ' + archiveFolder)
     
     #Backup the directory
-    runMurexCommand('echo "Backing up licence to ' + backupFile + '"; \
+    murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
             zip -r ' + backupPath + ' ' + folderToBackup)
 
     #Copy licence from localhost to remote server
     rsync(licenceFile, getMX())
 
     #Explode the new licence
-    runMurexCommand("echo 'Exploding licence';\
+    murex_runCommand("echo 'Exploding licence';\
             jar xvf testfile.jar;\
             echo 'Removing jar';rm testfile.jar")
 
     #If required bounce the services
     if confirm("Do you want to bounce services on " + env.user + "@" + env.host + " ?"):
-        bounceServices()
+        murex_bounceServices()
 
 
-def runMurexCommand(command):
-    """ 
-    Used for executing a command specifically targeted at Murex
+def murex_runCommand(command):
+    """
+    Used for executing a command specifically for Murex
     1. The function writes the variable name MX
     2. The function then enters that directory and
     3. The function echoes which directory it is in
@@ -115,8 +115,8 @@ def runMurexCommand(command):
     @param command: The command to to run
     
     Example
-    1. fab -H test.uk runMurexCommand:command="./launchmxj.app -s"
-    2. fab dev_server runMurexCommand:command="./mxg2000_launchall start"
+    1. fab -H test.uk murex_runCommand:command="./launchmxj.app -s"
+    2. fab dev_server murex_runCommand:command="./mxg2000_launchall start"
     
     """
     
@@ -124,7 +124,7 @@ def runMurexCommand(command):
     print("Executing on %s as %s" % (env.hosts, env.user))
     strCommand=''
     
-    #If variable MX is not set in the environments definition or if the runMurexCommand is called
+    #If variable MX is not set in the environments definition or if the murex_runCommand is called
     #directly, pick up the $MX alias. Ensure alias is defined in .bash_profile
     if (getMX() == None):
         strCommand = 'echo "MX=$MX";cd $MX;echo "I am in `pwd`";' + command
@@ -133,41 +133,71 @@ def runMurexCommand(command):
     
     run(strCommand)
     
-def startServices():
-    """ 
+def start():
+    """
+    Shortcut to murex_startServices
+
+    Example
+    1. fab -H test.uk start
+    2. fab dev_server start
+    """
+    murex_startServices()
+    
+def murex_startServices():
+    """
     Used for starting Murex services
 
     Example
     1. fab -H test.uk startServices
     2. fab dev_server startServices
     """
-    runMurexCommand('./mxg2000_launchall start;./launchmxj.app -s')
+    murex_runCommand('./mxg2000_launchall start;./launchmxj.app -s')
+    
+def stop():
+    """
+    Shortcut to murex_stopServices
 
-def stopServices():
-    """ 
+    Example
+    1. fab -H test.uk stop
+    2. fab dev_server stop
+    """
+    murex_stopServices()
+
+def murex_stopServices():
+    """
     Used for stopping Murex services
 
     Example
     1. fab -H test.uk stopServices
     2. fab dev_server stopServices
     """
-    runMurexCommand('./mxg2000_launchall stop')
-    runMurexCommand('./launchmxj.app -killall')
+    murex_runCommand('./mxg2000_launchall stop')
+    murex_runCommand('./launchmxj.app -killall')
 
-def bounceServices():
-    """ 
+def murex_bounceServices():
+    """
     Used for bouncing Murex services
 
     Example
     1. fab -H test.uk bounceServices
     2. fab dev_server bounceServices
     """
-    stopServices()
+    murex_stopServices()
     run('echo "Sleeping 2 seconds"')
     time.sleep(2)
-    startServices()
+    murex_startServices()
+    
+def s():
+    """
+    Shortcut for murex_checkServices
 
-def checkServices():
+    Example
+    1. fab -H test.uk s
+    2. fab dev_server s
+    """
+    murex_checkServices()
+
+def murex_checkServices():
     """
     Used for checking Murex services
 
@@ -175,10 +205,10 @@ def checkServices():
     1. fab -H test.uk checkServices
     2. fab dev_server checkServices
     """
-    runMurexCommand('./launchmxj.app -s')
+    murex_runCommand('./launchmxj.app -s')
 
 def __getLocationOfFile__(message):
-    """ 
+    """
     Used for taking an input from a user for a path and checking if the file exists on the localhost.
     Returns the filepath supplied by the user. If the filepath does not exist, the function loops
     and asks the user again.

@@ -78,7 +78,7 @@ def murex_buildAppTree():
     
     murex_runCommand('rm ../murex.tar.gz;tar zvcf ../murex.tar.gz . -X exclude')
     
-def murex_deployAppTree(appTree=None, backup=True, startServices=None):
+def murex_deployAppTree(appTree=None, backup=True, bounceServices=None):
     """
     Used for deploying a packaged [murex.tar.gz] AppTree
     1. It backups to $MX/../archive
@@ -136,7 +136,7 @@ def murex_deployAppTree(appTree=None, backup=True, startServices=None):
     #TODO: Add init of files      
     
     #If required start the services
-    murex_confirmBounceServices(startServices)    
+    murex_confirmBounceServices(bounceServices)    
         
 def murex_deployLicence(licenceFile=None, backup=True, bounceServices=None):
     """

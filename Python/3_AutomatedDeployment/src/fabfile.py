@@ -50,6 +50,41 @@ def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
     rsync = 'rsync -av ' + fromDirectory + ' ' + toUser + '@' + toServer + ':' + toDirectory
     local(rsync)
 
+###Murex Specific Code###
+def murex_deployAppTree(appTree=None):
+    if (appTree == None):
+        appTree = __getLocationOfFile__("What is the location of the app tree file on the gold server?")
+        
+    #The folder that needs to be backed up
+    folderToBackup = getMX()
+    
+    try:
+        #Stop the services, if there is an error ignore it
+        murex_stopServices(ignoreError = True)
+    except:
+        ignoreError = False #Do Nothing 
+    
+    #Create the apptree folder in case it does not exist
+    run('mkdir -p ' + folderToBackup)
+    
+    #Backup if required
+    __backup__(message = "Do you want to backup the apptree on " + env.user + "@" + env.host + " ?", 
+               folderToBackup = folderToBackup, prefix='appTree', removeDirectory=True)        
+    
+    #Copy licence from localhost to remote server
+    rsync(appTree, folderToBackup)
+    
+    #Explode the new apptree
+    murex_runCommand("echo 'Exploding aptree';\
+            tar zxvf *.tar.gz")
+    
+    #TODO: Add init of files      
+    
+    #If required start the services
+    if confirm("Do you want to start services on " + env.user + "@" + env.host + " ?"):
+        murex_startServices()
+    
+        
 def murex_deployLicence(licenceFile=None):
     """
     Used for deploying the licence of Murex. 
@@ -73,25 +108,14 @@ def murex_deployLicence(licenceFile=None):
         licenceFile = __getLocationOfFile__("What is the location of the licence file on the gold server?")
     
     #The folder that needs to be backed up
-    folderToBackup = getMX()
+    folderToBackup = getMX() + 'fs/licence'
     
-    #Where to place the backups
-    archiveFolder = getMX() + '/../archive'
-    
-    #Generate paths
-    timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-    backupFile = 'backup_' + timestamp + '.zip'
-    backupPath = archiveFolder + '/' + backupFile
-    
-    #Create backup directory
-    run('mkdir -p ' + archiveFolder)
-    
-    #Backup the directory
-    murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
-            zip -r ' + backupPath + ' ' + folderToBackup)
+    #Backup if required
+    __backup__(message = "Do you want to backup the apptree on " + env.user + "@" + env.host + " ?", 
+               folderToBackup = folderToBackup, prefix='licence', removeDirectory=False)
 
     #Copy licence from localhost to remote server
-    rsync(licenceFile, getMX())
+    rsync(licenceFile, folderToBackup)
 
     #Explode the new licence
     murex_runCommand("echo 'Exploding licence';\
@@ -102,8 +126,7 @@ def murex_deployLicence(licenceFile=None):
     if confirm("Do you want to bounce services on " + env.user + "@" + env.host + " ?"):
         murex_bounceServices()
 
-
-def murex_runCommand(command):
+def murex_runCommand(command, ignoreError=False):
     """
     Used for executing a command specifically for Murex
     1. The function writes the variable name MX
@@ -131,7 +154,13 @@ def murex_runCommand(command):
     else:
         strCommand = 'echo "MX=' + getMX() + '";cd ' + getMX() + ';echo "I am in `pwd`";' + command
     
-    run(strCommand)
+    if ignoreError:
+        try:
+            run(strCommand)
+        except:
+            print("Ignoring error while executing " + strCommand)            
+    else:
+        run(strCommand)
     
 def start():
     """
@@ -163,7 +192,7 @@ def stop():
     """
     murex_stopServices()
 
-def murex_stopServices():
+def murex_stopServices(ignoreError=False):
     """
     Used for stopping Murex services
 
@@ -171,8 +200,9 @@ def murex_stopServices():
     1. fab -H test.uk stopServices
     2. fab dev_server stopServices
     """
-    murex_runCommand('./mxg2000_launchall stop')
-    murex_runCommand('./launchmxj.app -killall')
+    murex_runCommand('./mxg2000_launchall stop', ignoreError)
+    murex_runCommand('./launchmxj.app -killall', ignoreError)
+    run('fuser -k ' + getMX())
 
 def murex_bounceServices():
     """
@@ -182,7 +212,7 @@ def murex_bounceServices():
     1. fab -H test.uk bounceServices
     2. fab dev_server bounceServices
     """
-    murex_stopServices()
+    murex_stopServices(ignoreError=True)
     run('echo "Sleeping 2 seconds"')
     time.sleep(2)
     murex_startServices()
@@ -207,6 +237,42 @@ def murex_checkServices():
     """
     murex_runCommand('./launchmxj.app -s')
 
+
+### Hidden functions ###
+def __backup__(message, folderToBackup, prefix, removeDirectory=False, archiveFolder=getMX() + '../archive'):
+    """
+    Used for backing up a directory
+    1. It backups the path specified in the variable folderToBackup
+    2. The backup is named backup_<prefix>_2010_11_12_12_30_59.zip [Year_Month_Date_Hour_Min_Sec]
+    3. The backup zip is stored in the path specified in the variable archiveFolder
+    
+    @type message: String
+    @param message: The message to ask the user
+    @type folderToBackup: String
+    @param folderToBackup: The folder to backup 
+    
+    Specify the full path of the licence directory of the remote server in the variable folderToBackup 
+    Example: 
+    1. fab -H test.uk rsync    In this situation you will be asked for the location of the file
+    2. fab -H test.uk rsync:licenceFile
+    """
+    
+    if confirm(message):
+        #Generate paths
+        timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        backupFile = 'appTree_backup_' + prefix + '_'+ timestamp + '.zip'
+        backupPath = archiveFolder + '/' + backupFile
+        
+        #Create backup directory
+        run('mkdir -p ' + archiveFolder)
+    
+        #Backup the directory
+        murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
+                        zip -r ' + backupPath + ' ' + folderToBackup)
+        
+    if (removeDirectory):
+        murex_runCommand('cd ' + folderToBackup + ';rm -rf *')
+    
 def __getLocationOfFile__(message):
     """
     Used for taking an input from a user for a path and checking if the file exists on the localhost.

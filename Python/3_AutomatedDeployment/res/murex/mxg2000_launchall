@@ -1,0 +1,20 @@
+case "$1" in
+start)
+	echo "start";
+	python MyDaemon.py start `pwd`;
+	sleep 2;
+;;
+stop)
+	echo "Stopping `cat logs/mydaemon.pid`";
+
+	python MyDaemon.py stop `pwd`;
+
+	if [ -e logs/mydaemon.pid ]; then
+		ps -ef | grep -f logs/mydaemon.pid | grep -v grep | awk {'print $2'} | xargs kill;
+		rm logs/mydaemon.pid;
+	fi
+;;
+*)
+	echo "Commands are start and stop";
+;;
+esac

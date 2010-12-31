@@ -1,0 +1,7 @@
+logs/
+*.err
+*.ierr
+*.log
+*.tar
+*.zip
+*.tar.gz

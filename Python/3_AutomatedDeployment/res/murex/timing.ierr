@@ -1,0 +1,12 @@
+total 48
+drwxr-xr-x  4 parj parj  4096 2010-12-28 20:15 ./
+drwxrwxrwt 18 root root  4096 2010-12-28 20:12 ../
+drwxr-xr-x  3 parj parj  4096 2010-12-27 19:01 fs/
+-rwxr-xr-x  1 parj parj   381 2010-12-23 00:53 launchmxj.app*
+drwxr-xr-x  2 parj parj  4096 2010-12-28 20:14 logs/
+-rw-r--r--  1 parj parj 10240 2010-12-27 19:48 murex.tar.gz
+-rw-r--r--  1 parj parj   700 2010-12-27 19:48 murex.zip
+-rwxr-xr-x  1 parj parj   318 2010-12-27 19:47 mxg2000_launchall*
+-rw-r--r--  1 parj parj   575 2010-12-28 20:15 timing.err
+-rw-r--r--  1 parj parj     0 2010-12-28 20:15 timing.ierr
+-rw-r--r--  1 parj parj   517 2010-12-28 20:15 timing.log

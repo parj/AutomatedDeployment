@@ -16,13 +16,22 @@ from datetime import datetime
 from environments import *
     
 def host_info():
-    print 'Checking lsb_release of host: ',  env.host
-    run('lsb_release -a')
+    """
+    Gets uname and hostname
+    """
+    print 'Checking uname of host: ',  env.host
+    run('uname -a;hostname;')
 
 def uptime():
+    """
+    Gets uptime
+    """
     run('uptime')
 
 def vmstat():
+    """
+    Gets vmstat
+    """
     run('vmstat')
 
 def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
@@ -51,30 +60,43 @@ def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
     local(rsync)
 
 ###Murex Specific Code###
-def murex_buildAppTree(appTree=None):
-    if (appTree == None):
-        appTree = __getLocationOfFile__("What is the location of the app tree directory on the localhost?")
-    
-    run('cd ' + appTree + ';rm ../murex.tar.gz;tar zvcf ../murex.tar.gz . -X exclude')
-    
-def murex_deployAppTree(appTree=None):
+def murex_buildAppTree():
     """
-    Used for deploying the Murex AppTree
-    1. It backups to $MX/../archive - usually
-    2. The location path is created if it does not exist
-    3. Services are stopped
-    4. The backup is named appTree_backup_2010_11_12_12_30_59.zip [Year_Month_Date_Hour_Min_Sec]
-    5. Everything in the $MX folder is deleted
-    6. The appTree zip file is rsync'ed from the localhost to the remote server
-    7. The apptree is exploded and the orginal file removed
-    8. You are given the option of starting the services
+    Used for packaging the Murex AppTree
+    The file created is murex.tar.gz
+    The location should be defined in the variable MX under the server details in environments.py.
+    If it is not defined, then the $MX variable environment variable is used
     
     @type appTree: String
     @param appTree: Location of apptree on the localhost
     
     Example:
-    1. fab -H test.uk murex_deployAppTree    In this situation you will be asked for the location of the file
-    2. fab -H test.uk murex_deployAppTree:licenceFile=/tmp/murex.tar.gz
+    1. fab -H test.uk murex_buildAppTree 
+    """
+    
+    murex_runCommand('rm ../murex.tar.gz;tar zvcf ../murex.tar.gz . -X exclude')
+    
+def murex_deployAppTree(appTree=None, backup=True, startServices=None):
+    """
+    Used for deploying a packaged [murex.tar.gz] AppTree
+    1. It backups to $MX/../archive
+    2. The location path is created if it does not exist
+    3. Services are stopped
+    4. The backup is named appTree_backup_2010_11_12_12_30_59.zip [Year_Month_Date_Hour_Min_Sec]
+    5. Everything in the $MX folder is deleted
+    6. The appTree zip file is rsync'ed from the localhost to the remote server
+    7. The apptree is exploded and the packaged file removed
+    8. You are given the option of starting the services
+    
+    @type appTree: String
+    @param appTree: Location of apptree on the localhost
+    @type startServices: Boolean
+    @param startServices: If left blank, the user is questioned if services need to be bounced. For bulk operations, set to True or False for bouncing services automatically.  
+    
+    Example:
+    1. fab -H test.uk murex_deployAppTree    NOTE: In this situation you will be asked for the location of the file
+    2. fab -H test.uk murex_deployAppTree:appTree=/tmp/murex.tar.gz
+    3. fab server_dev murex_deployAppTree:appTree=/tmp/murex.tar.gz, startServices=True
     """  
     if (appTree == None):
         appTree = __getLocationOfFile__("What is the location of the app tree file [murex.tar.gz] on the localhost?")
@@ -92,24 +114,25 @@ def murex_deployAppTree(appTree=None):
         ignoreError = False #Do Nothing 
     
     #Backup if required
-    __backup__(message = "Do you want to backup the apptree on " + env.user + "@" + env.host + " ?", 
-               folderToBackup = murexAppTreePath, prefix='appTree', removeDirectory=True, archiveFolder=murexAppTreePath + '/../archive')        
+    if (backup):
+        __backup__(folderToBackup = murexAppTreePath, 
+                   prefix='appTree', 
+                   removeDirectory=True, 
+                   archiveFolder=murexAppTreePath + '/../archive')        
     
     #Copy apptree from localhost to remote server
     rsync(appTree, murexAppTreePath)
     
     #Explode the new apptree
     murex_runCommand("echo 'Exploding aptree';\
-            tar zxvf *.tar.gz")
+            tar zxvf *.tar.gz;rm *.tar.gz")
     
     #TODO: Add init of files      
     
     #If required start the services
-    if confirm("Do you want to start services on " + env.user + "@" + env.host + " ?"):
-        murex_startServices()
-    
+    murex_confirmBounceServices(startServices)    
         
-def murex_deployLicence(licenceFile=None):
+def murex_deployLicence(licenceFile=None, backup=True, bounceServices=None):
     """
     Used for deploying the licence of Murex. 
     1. It backups to $MX/../archive - usually
@@ -121,22 +144,28 @@ def murex_deployLicence(licenceFile=None):
     @type licenceFile: String
     @param licenceFile: The path of the licence file on the localhost machine. If this is not supplied
     the user will be asked  
+    @type bounceServices: Boolean
+    @param bounceServices: If left blank, the user is questioned if services need to be bounced. For bulk operations, set to True or False for bouncing services automatically.  
     
     Specify the full path of the licence directory of the remote server in the variable folderToBackup 
     Example: 
     1. fab -H test.uk murex_deployLicence    In this situation you will be asked for the location of the file
     2. fab -H test.uk murex_deployLicence:licenceFile=/tmp/licence.jar
+    3. fab server_dev murex_deployLicence:licenceFile=/tmp/licence.jar,bounceServices=True
     """
     
     if (licenceFile == None):
-        licenceFile = __getLocationOfFile__("What is the location of the licence file on the gold server?")
+        licenceFile = __getLocationOfFile__("What is the location of the licence file on the localhost?")
     
     #The folder that needs to be backed up
     folderToBackup = getMX() + 'fs/licence'
     
     #Backup if required
-    __backup__(message = "Do you want to backup the apptree on " + env.user + "@" + env.host + " ?", 
-               folderToBackup = folderToBackup, prefix='licence', removeDirectory=False)
+    if (backup):
+        __backup__(folderToBackup = folderToBackup, 
+                   prefix='licence', 
+                   removeDirectory=False,
+                   archiveFolder=getMX() + '/../archive')
 
     #Copy licence from localhost to remote server
     rsync(licenceFile, folderToBackup)
@@ -146,9 +175,7 @@ def murex_deployLicence(licenceFile=None):
             jar xvf testfile.jar;\
             echo 'Removing jar';rm testfile.jar")
 
-    #If required bounce the services
-    if confirm("Do you want to bounce services on " + env.user + "@" + env.host + " ?"):
-        murex_bounceServices()
+    murex_confirmBounceServices(bounceServices)
 
 def murex_runCommand(command, ignoreError=False):
     """
@@ -227,7 +254,27 @@ def murex_stopServices(ignoreError=False):
     murex_runCommand('./mxg2000_launchall stop', ignoreError)
     murex_runCommand('./launchmxj.app -killall', ignoreError)
     #run('fuser -k ' + getMX())
-
+    
+def murex_confirmBounceServices(bounceServices):
+    """
+    If bounceServices variable is None, i.e User not has supplied a preference, the user will be
+    questioned if the services are to be restarted.
+    
+    If a bulk deployment is taking place, set the bounceServices to True to automatically bounce
+    each server
+    
+    @type bounceServices: Boolean
+    @param bounceServices: If left blank, the user is questioned if services need to be bounced. For bulk operations, set to True or False for bouncing services automatically.  
+    """
+    
+    #If user has not specified True or False for bouncing services, ask
+    if (bounceServices == None):
+        if confirm("Do you want to bounce services on " + env.user + "@" + env.host + " ?"):
+            murex_bounceServices()
+    else: #Use the True/False option for bouncing services
+        if (bounceServices):
+            murex_bounceServices()
+    
 def murex_bounceServices():
     """
     Used for bouncing Murex services
@@ -236,7 +283,11 @@ def murex_bounceServices():
     1. fab -H test.uk bounceServices
     2. fab dev_server bounceServices
     """
-    murex_stopServices(ignoreError=True)
+    try:
+        murex_stopServices(ignoreError=True)
+    except:
+        ignoreError=True   #Do Nothing
+        
     run('echo "Sleeping 2 seconds"')
     time.sleep(2)
     murex_startServices()
@@ -263,36 +314,35 @@ def murex_checkServices():
 
 
 ### Hidden functions ###
-def __backup__(message, folderToBackup, prefix, removeDirectory=False, archiveFolder=getMX() + '../archive'):
+def __backup__(folderToBackup, prefix, removeDirectory=False, 
+               archiveFolder=getMX() + '../archive'):
     """
     Used for backing up a directory
     1. It backups the path specified in the variable folderToBackup
     2. The backup is named backup_<prefix>_2010_11_12_12_30_59.zip [Year_Month_Date_Hour_Min_Sec]
     3. The backup zip is stored in the path specified in the variable archiveFolder
-    
-    @type message: String
-    @param message: The message to ask the user
+
     @type folderToBackup: String
     @param folderToBackup: The folder to backup 
     
     Specify the full path of the licence directory of the remote server in the variable folderToBackup 
+    Internal function not to be called directly
+    
     Example: 
-    1. fab -H test.uk rsync    In this situation you will be asked for the location of the file
-    2. fab -H test.uk rsync:licenceFile
+    __backup__(folderToBackup = folderToBackup, prefix='licence', removeDirectory=False)
     """
     
-    if confirm(message):
-        #Generate paths
-        timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
-        backupFile = 'appTree_backup_' + prefix + '_'+ timestamp + '.zip'
-        backupPath = archiveFolder + '/' + backupFile
-        print(archiveFolder)
-        #Create backup directory
-        run('mkdir -p ' + archiveFolder)
-    
-        #Backup the directory
-        murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
-                        zip -r ' + backupPath + ' ' + folderToBackup)
+    #Generate paths
+    timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+    backupFile = prefix + '_backup_' + timestamp + '.zip'
+    backupPath = archiveFolder + '/' + backupFile
+    print(archiveFolder)
+    #Create backup directory
+    run('mkdir -p ' + archiveFolder)
+
+    #Backup the directory
+    murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
+                    zip -r ' + backupPath + ' ' + folderToBackup)
         
     if (removeDirectory):
         murex_runCommand('cd ' + folderToBackup + ';rm -rf *')
@@ -306,7 +356,10 @@ def __getLocationOfFile__(message):
     @type message: String
     @param message: The command to be executed by the user  
     
-    Internal function not called directly.
+    Internal function not to be called directly
+    
+    Example:
+    licenceFile = __getLocationOfFile__("What is the location of the licence file on the localhost?")
     """
     
     fileExists = False

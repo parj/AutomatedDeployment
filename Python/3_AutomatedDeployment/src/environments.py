@@ -20,7 +20,7 @@ def server_dev_all():
     global MX
     env.user = 'parj'
     env.hosts = ['localhost','192.168.1.100']
-    MX='/Data/Documents/Programming/repo'
+    MX='/opt/DEV/parj/thirdparty/murex'
     
 def server_dev():
     """

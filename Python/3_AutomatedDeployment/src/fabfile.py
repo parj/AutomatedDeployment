@@ -14,7 +14,9 @@ from fabric.contrib.console import confirm
 import time, os.path
 from datetime import datetime
 from environments import *
-    
+  
+output.debug = False  #:Set to True for verbose logging
+
 def host_info():
     """
     Gets uname and hostname
@@ -56,7 +58,7 @@ def rsync(fromDirectory, toDirectory, toServer=env.host, toUser=env.user):
     if (toServer == None):
         toServer = env.host
         
-    rsync = 'rsync -av ' + fromDirectory + ' ' + toUser + '@' + toServer + ':' + toDirectory
+    rsync = __rsync__() + fromDirectory + ' ' + toUser + '@' + toServer + ':' + toDirectory
     local(rsync)
 
 ###Murex Specific Code###
@@ -104,6 +106,9 @@ def murex_deployAppTree(appTree=None, backup=True, startServices=None):
     #The folder that needs to be backed up
     murexAppTreePath = getMX()
     
+    #Get the filename
+    appTreeFileName = os.path.basename(appTree)
+    
     #Create the apptree folder in case it does not exist
     run('mkdir -p ' + murexAppTreePath)
     
@@ -123,9 +128,10 @@ def murex_deployAppTree(appTree=None, backup=True, startServices=None):
     #Copy apptree from localhost to remote server
     rsync(appTree, murexAppTreePath)
     
+    tarCommand = __tar__() + 'zxf ' + appTreeFileName
+    
     #Explode the new apptree
-    murex_runCommand("echo 'Exploding aptree';\
-            tar zxvf *.tar.gz;rm *.tar.gz")
+    murex_runCommand("echo 'Exploding apptree';" + tarCommand + ";rm " + appTreeFileName)
     
     #TODO: Add init of files      
     
@@ -158,7 +164,8 @@ def murex_deployLicence(licenceFile=None, backup=True, bounceServices=None):
         licenceFile = __getLocationOfFile__("What is the location of the licence file on the localhost?")
     
     #The folder that needs to be backed up
-    folderToBackup = getMX() + 'fs/licence'
+    folderToBackup = getMX() + '/fs/licence'
+    licenceFileName = os.path.basename(licenceFile)
     
     #Backup if required
     if (backup):
@@ -169,11 +176,15 @@ def murex_deployLicence(licenceFile=None, backup=True, bounceServices=None):
 
     #Copy licence from localhost to remote server
     rsync(licenceFile, folderToBackup)
+    
+    jarCommand = __jar__() + 'xf ' + licenceFileName
 
     #Explode the new licence
-    murex_runCommand("echo 'Exploding licence';\
-            jar xvf testfile.jar;\
-            echo 'Removing jar';rm testfile.jar")
+    murex_runCommand('echo "Exploding licence";\
+            cd ' + folderToBackup + ';\
+            echo "I am in `pwd`" ;\
+            ' + jarCommand + ';\
+            echo "Removing jar";rm ' + licenceFileName)
 
     murex_confirmBounceServices(bounceServices)
 
@@ -193,23 +204,29 @@ def murex_runCommand(command, ignoreError=False):
     2. fab dev_server murex_runCommand:command="./mxg2000_launchall start"
     
     """
-    
-    output.debug = False
-    print("Executing on %s as %s" % (env.hosts, env.user))
+    if (output.debug):
+        print("Executing on %s as %s" % (env.hosts, env.user))
     strCommand=''
-    
+
     #If variable MX is not set in the environments definition or if the murex_runCommand is called
     #directly, pick up the $MX alias. Ensure alias is defined in .bash_profile
     if (getMX() == None):
-        strCommand = 'echo "MX=$MX";cd $MX;echo "I am in `pwd`";' + command
+        if (output.debug): #If debugging is on, be more verbose
+            strCommand = 'echo "MX=$MX";cd $MX;echo "I am in `pwd`";' + command
+        else:   #Quietly execute
+            strCommand = 'cd $MX;' + command
     else:
-        strCommand = 'echo "MX=' + getMX() + '";cd ' + getMX() + ';echo "I am in `pwd`";' + command
+        if (output.debug): #If debugging is on, be more verbose
+            strCommand = 'echo "MX=' + getMX() + '";cd ' + getMX() + ';echo "I am in `pwd`";' + command
+        else: #Quietly execute
+            strCommand = 'cd ' + getMX() + ';' + command 
     
     if ignoreError:
         try:
             run(strCommand)
         except:
-            print("Ignoring error while executing " + strCommand)            
+            if (output.debug): #If debugging is on, be more verbose
+                print("Ignoring error while executing " + strCommand)            
     else:
         run(strCommand)
     
@@ -336,13 +353,14 @@ def __backup__(folderToBackup, prefix, removeDirectory=False,
     timestamp = datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     backupFile = prefix + '_backup_' + timestamp + '.zip'
     backupPath = archiveFolder + '/' + backupFile
-    print(archiveFolder)
+
+    zipCommand = __zip__() + backupPath + ' ' + folderToBackup
+    
     #Create backup directory
     run('mkdir -p ' + archiveFolder)
 
     #Backup the directory
-    murex_runCommand('echo "Backing up licence to ' + backupFile + '"; \
-                    zip -r ' + backupPath + ' ' + folderToBackup)
+    murex_runCommand('echo "Backing up licence to ' + backupFile + '";'+ zipCommand)
         
     if (removeDirectory):
         murex_runCommand('cd ' + folderToBackup + ';rm -rf *')
@@ -375,3 +393,55 @@ def __getLocationOfFile__(message):
             local('echo "File found"; ls -lrt ' + iFile, capture=False)
         
     return iFile
+
+def __tar__():
+    """
+    Used for returning tar command. If output.debug set to true, tar will be verbose
+    """
+    tarCommand = ''
+    
+    if (output.debug):
+        tarCommand = 'tar v'
+    else:
+        tarCommand = 'tar '
+        
+    return tarCommand
+
+def __jar__():
+    """
+    Used for returning jar command. If output.debug set to true, jar will be verbose
+    """
+    jarCommand = ''
+    
+    if (output.debug):
+        jarCommand = 'jar v'
+    else:
+        jarCommand = 'jar '
+        
+    return jarCommand
+
+def __rsync__():
+    """
+    Used for returning rsync command. If output.debug set to true, rsync will be verbose
+    """
+    rsyncCommand = ''
+    
+    if (output.debug):
+        rsyncCommand = 'rsync -av '
+    else:
+        rsyncCommand = 'rsync -aq '
+        
+    return rsyncCommand
+
+def __zip__():
+    """
+    Used for returning zip command. If output.debug set to true, zip will be verbose
+    """
+    zipCommand = ''
+    
+    if (output.debug): #If debugging is on, be more verbose
+        zipCommand = 'zip -rv '
+    else:
+        zipCommand = 'zip -rq '
+    
+    return zipCommand

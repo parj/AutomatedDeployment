@@ -24,8 +24,7 @@ def server_dev_all():
     
 def server_dev():
     """
-    Dev server::
-        parj@localhost
+    Dev server - parj@localhost
     """
     global MX
     env.user = 'parj'
@@ -34,8 +33,7 @@ def server_dev():
  
 def server_staging():
     """
-    Staging server::
-        parj@192.168.1.100
+    Staging server - parj@192.168.1.100
     """
     global MX
     env.user = 'parj'
@@ -44,21 +42,20 @@ def server_staging():
 
 def server_gold():
     """
-    Gold server::
-        parj@localhost
+    Gold server - parj@localhost
     """
     global MX
     env.user = 'parj'
     env.hosts = ['localhost']
     MX='/Data/Documents/Programming/repo'
     
-def getMX():
+def _getMX_():
     """
     Returns the value of the global MX variable
     """
     return MX
 
-def setMX(path):
+def _setMX_(path):
     """
     Sets the value of the global MX variable
     

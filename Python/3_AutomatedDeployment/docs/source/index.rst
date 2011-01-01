@@ -11,8 +11,10 @@ Contents:
 .. toctree::
    :maxdepth: 2
 
-   fabfile
    environments
+   fabfile
+   murex
+   utilities
 
 Indices and tables
 ==================

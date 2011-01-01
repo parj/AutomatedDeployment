@@ -1,7 +1,10 @@
 """
 Created on Dec 24, 2010
 
-@author: Parjanya Mudunuri <parjanya@gmail.com>
+.. sectionauthor:: Parjanya Mudunuri <parjanya@gmail.com>
+
+Hosts all the evnironments connection data
+
 """
 from fabric.api import env
 

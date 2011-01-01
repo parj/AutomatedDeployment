@@ -1,8 +1,10 @@
-'''
+"""
 Created on Dec 31, 2010
 
-@author: parj
-'''
+.. sectionauthor:: Parjanya Mudunuri <parjanya@gmail.com>
+
+Hosts all the utilities functions
+"""
 
 from fabric.api import env
 import os.path

@@ -1,8 +1,10 @@
-'''
+"""
 Created on Dec 31, 2010
 
-@author: parj
-'''
+.. sectionauthor:: Parjanya Mudunuri <parjanya@gmail.com>
+
+Hosts all the Murex specific code for starting/stopping/conifguring a murex environments
+"""
 
 import time, os.path
 from fabric.api import run, env

@@ -1,4 +1,4 @@
-Environments to run the configuration
+List of all available environments
 =====================================
 
 .. automodule:: environments

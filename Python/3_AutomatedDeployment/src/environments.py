@@ -22,7 +22,7 @@ def server_dev_all():
     
     global MX
     env.user = 'parj'
-    env.hosts = ['localhost','192.168.1.100']
+    env.hosts = ['localhost','192.168.1.120']
     MX='/opt/DEV/parj/thirdparty/murex'
     
 def server_dev():
@@ -36,11 +36,11 @@ def server_dev():
  
 def server_staging():
     """
-    Staging server - parj@192.168.1.100
+    Staging server - parj@192.168.1.120
     """
     global MX
     env.user = 'parj'
-    env.hosts = ['192.168.1.100']
+    env.hosts = ['192.168.1.120']
     MX='/opt/UAT/parj/thirdparty/murex'
 
 def server_gold():

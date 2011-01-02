@@ -330,7 +330,7 @@ def _backup_(folderToBackup, prefix, removeDirectory=False,
     run('mkdir -p ' + archiveFolder)
 
     #Backup the directory
-    murex_runCommand('echo "Backing up licence to ' + backupFile + '";'+ zipCommand)
+    murex_runCommand('echo "Backing up ' + prefix + ' to ' + backupFile + '";'+ zipCommand)
         
     if (removeDirectory):
         murex_runCommand('cd ' + folderToBackup + ';rm -rf *')

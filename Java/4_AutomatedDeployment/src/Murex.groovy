@@ -1,6 +1,5 @@
 #!/usr/bin/env groovy
 
-import static Environments.*
 import static Utilities.*
 
 class Murex {
@@ -16,11 +15,14 @@ class Murex {
 	static void runMurexCommand(command) {
 		String stringCommand
 		
-		if (MX == null)
-			stringCommand = "cd $MX;" + command
-		else
-			stringCommand = "cd " + MX + ";" + command
-		
+		//If MX variable is not defined
+		try {
+			stringCommand = "cd ${Utilities.environment.MX};" + command
+		}
+		catch (groovy.lang.MissingPropertyException e) {
+			stringCommand = "cd \$MX;" + command
+		}
+
 		runCommand(stringCommand)
 	}
 }

@@ -9,6 +9,8 @@ class Glucose {
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("log4j.properties");
 		
+		logger.debug("Number of arguments passed - " + args.size());
+		
 		if (args.size() == 0) {
 			System.out.println ("Missing command. To use - ");
 			System.out.println ("./run.sh local Utilities.uptime");
@@ -16,9 +18,8 @@ class Glucose {
 			System.exit(1)
 		}
 		
-		logger.debug("Number of arguments passed - " + args.size())
 		
-		String environmentName = args[0]
+		String environmentName = args[0];
 		logger.debug("environmentName - " + environmentName)
 		
 		String classFunctionName = args[1]

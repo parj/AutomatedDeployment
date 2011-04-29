@@ -25,7 +25,7 @@ THE SOFTWARE.
 
 <html>
     <head>
-        <title>Welcome to Grails</title>
+        <title>Glucose - No es un burro!</title>
         <meta name="layout" content="main"></meta>
         <style type="text/css" media="screen">
 			body{
@@ -233,7 +233,7 @@ THE SOFTWARE.
     		<!-- FORM TO SUBMIT REQUEST -->
 	        <g:form id="frmCommand">
 	        	<h1>Glucose - Automated env management</h1>
-	        	<p>Es no burro!</p>
+	        	<p>No es un burro!</p>
 
 	      		<!-- List all environments -->
 	      		<label>Environments

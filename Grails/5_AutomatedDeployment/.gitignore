@@ -1,0 +1,28 @@
+# Compiled source #
+###################
+*.com
+*.class
+*.dll
+*.exe
+*.o
+*.so
+target/
+plugin-classes/
+resources/
+web-app/WEB-INF/classes/
+
+# Logs and databases #
+######################
+*.log
+
+# OS generated files #
+######################
+.DS_Store?
+ehthumbs.db
+Icon?
+Thumbs.db
+
+# Personal Files #
+######################
+src/groovy/glucose/LocalDevEnvironments.groovy
+src/groovy/glucose/Murex.groovy

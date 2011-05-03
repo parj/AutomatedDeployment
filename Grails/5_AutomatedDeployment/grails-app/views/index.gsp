@@ -28,7 +28,7 @@ THE SOFTWARE.
         <title>Glucose - No es un burro!</title>
         <meta name="layout" content="main"></meta>
         <link type="text/css" rel="stylesheet" href="css/layout.css"/>
-		<link type="text/css" rel="stylesheet" href="css/fonts-min.css" />
+		<link type="text/css" rel="stylesheet" href="css/yui/fonts-min.css" />
         <g:javascript library="prototype"></g:javascript>
         <g:javascript library="scriptaculous"></g:javascript>
         <g:javascript library="yui-min"></g:javascript>
@@ -86,49 +86,54 @@ THE SOFTWARE.
 
 			function readLogFile() {
 				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
-				var elLog = document.getElementById("txtLog");
-				var elLastTen = document.getElementById("txtLastTen");
-				var elSubmit = document.getElementsByName("buttonSubmit");
-				var boolRefresh = false;
-
-				//The submit button is hidden, means command is being executed
-				//Force refresh
-				if (elSubmit[0].style.display == 'none') {
-					boolRefresh = true
-				}
+				var myDataSource;
 				
-				var xmlhttp = getXMLHTTP();
-				xmlhttp.open("GET", datafile, true);
-				
-				xmlhttp.onreadystatechange = function() {
-					//Response has been received => 4 and page exists => 200
-					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) { 
-						//boolRefresh has been set to force refresh or values are not the same
-						if (boolRefresh || elLog.value != xmlhttp.responseText) {
-							boolRefresh = true;
-						}
-						else {
-							boolRefresh = false;
-						}
-						//To reduce textbox scrolling, if nothing has changed do not referesh
-						if (boolRefresh) {
-							//Set the log
-							elLog.value = xmlhttp.responseText;
-							
-							//Reverse the order of the sentences
-							var split = xmlhttp.responseText.split(/\r?\n/);
-							var combine = "";
-							for (i = 0; i < 10; ++i) {
-								combine = combine + split[split.length - (i + 2)] + "\n";
-							}
-							elLastTen.value = combine;
-						}
-					}
-				}
-				xmlhttp.send(null);
-				setTimeout("readLogFile()",100);
+				YUI().use("datasource-io", "datasource-polling", function(Y) {
+				    myDataSource = new Y.DataSource.IO({source:datafile}),
+					request = {
+						callback : {
+				            success: function(e){
+								refreshLogs(e.response.results[0].responseText);
+				            }
+				        }	
+					},
+					id = myDataSource.setInterval(500, request); //Poll every 500ms
+				});
 			}
 
+			//Refreshes the 2 log text areas
+			function refreshLogs(feedback) {
+				var elLog = document.getElementById("txtLog");
+				var elLastTen = document.getElementById("txtLastTen");
+				var boolRefresh = false;
+				var elSubmit = document.getElementsByName("buttonSubmit");
+				
+	          	//The submit button is hidden, means command is being executed
+            	//or values are not the same. Force Refresh.
+				if (elSubmit[0].style.display == 'none' || elLog.value != feedback) {
+					boolRefresh = true;
+				}
+				else {
+					boolRefresh = false;
+				}
+				
+				//To reduce textbox scrolling, if nothing has changed do not referesh
+				if (boolRefresh) {
+					//Set the log
+					elLog.value = feedback;
+					
+					//Reverse the order of the sentences so that latest
+					//is on top
+					var split = feedback.split(/\r?\n/);
+					var combine = "";
+					for (i = 0; i < 10; ++i) {
+						combine = combine + split[split.length - (i + 2)] + "\n";
+					}
+					elLastTen.value = combine;
+				}
+			}
+
+			//For autosuggest. Loads from suggestions.txt for custom command text area
 			function loadSuggestions() {
 				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "suggestions.txt"
 				var xmlhttp = getXMLHTTP();

@@ -26,153 +26,30 @@ THE SOFTWARE.
 <html>
     <head>
         <title>Glucose - No es un burro!</title>
+        <!-- Used by grails to inject in main.gsp -->
         <meta name="layout" content="main"></meta>
-        <!-- Disable caching -->
+        <!-- Disable caching otherwise logs will be stale-->
         <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"></META>
+        <!-- Custom Glucose CSS Code -->
         <link type="text/css" rel="stylesheet" href="css/layout.css"/>
+        <!-- Used by YUI library -->
 		<link type="text/css" rel="stylesheet" href="css/yui/fonts-min.css" />
+		<!-- Used by GRAILS for AJAX code -->
         <g:javascript library="prototype"></g:javascript>
+        <!-- Used by GRAILS -->
         <g:javascript library="scriptaculous"></g:javascript>
+        <!-- YUI Library -->
         <g:javascript library="yui-min"></g:javascript>
-
-        
-        <script type="text/javascript">
-			function toggleTxtCommand() {
-				var el = document.getElementById("txtCommand");
-				var list = document.getElementById("listCommand");
-
-				if (list.value == 'Custom Command') 
-					el.style.display = '';
-				else
-					el.style.display = 'none';
-			}
-
-			function hideSubmit() {
-				var el = document.getElementsByName("buttonSubmit");
-				el[0].style.display = 'none';
-				readLogFile();
-			}
-
-			function showSubmit() {
-				var el = document.getElementsByName("buttonSubmit");
-				el[0].style.display = '';
-				readLogFile();
-			}
-
-			function getXMLHTTP() {
-				var xmlhttp;				
-				/*@cc_on @*/
-				/*@if (@_jscript_version >= 5)
-				  try {
-				  xmlhttp=new ActiveXObject("Msxml2.XMLHTTP")
-				 } catch (e) {
-				  try {
-				    xmlhttp=new ActiveXObject("Microsoft.XMLHTTP")
-				  } catch (E) {
-				   xmlhttp=false
-				  }
-				 }
-				@else
-				 xmlhttp=false
-				@end @*/
-				if (!xmlhttp) {
-				 try {
-				  xmlhttp = new XMLHttpRequest();
-				 } catch (e) {
-				  xmlhttp=false;
-				 }
-				}
-
-				return xmlhttp;
-			}
-
-			function readLogFile() {
-				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
-				
-				YUI().use("datasource-io", "datasource-polling", function(Y) {
-				    myDataSource = new Y.DataSource.IO({source:datafile}),
-					request = {
-						callback : {
-				            success: function(e){
-								refreshLogs(e.response.results[0].responseText);
-				            }
-				        }	
-					},
-					id = myDataSource.setInterval(200, request); //Poll every 500ms
-				});
-			}
-
-			//Refreshes the 2 log text areas
-			function refreshLogs(feedback) {
-				var elLog = document.getElementById("txtLog");
-				var elLastTen = document.getElementById("txtLastTen");
-				var boolRefresh = false;
-				var elSubmit = document.getElementsByName("buttonSubmit");
-				
-	          	//The submit button is hidden, means command is being executed
-            	//or values are not the same. Force Refresh.
-				if (elSubmit[0].style.display == 'none' || elLog.value != feedback) {
-					boolRefresh = true;
-				}
-				else {
-					boolRefresh = false;
-				}
-				
-				//To reduce textbox scrolling, if nothing has changed do not referesh
-				if (boolRefresh) {
-					//Set the log
-					elLog.value = feedback;
-					
-					//Reverse the order of the sentences so that latest
-					//is on top
-					var split = feedback.split(/\r?\n/);
-					var combine = "";
-					for (i = 0; i < 10; ++i) {
-						combine = combine + split[split.length - (i + 2)] + "\n";
-					}
-					elLastTen.value = combine;
-				}
-			}
-
-			//For autosuggest. Loads from suggestions.txt for custom command text area
-			function loadSuggestions() {
-				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "suggestions.txt"
-				YUI().use("datasource-io", "datasource-textschema", function(Y) {
-				    myDataSource = new Y.DataSource.IO({source:datafile}),
-					myCallback = {
-			            success: function(e){
-				            //Split using new lines
-			            	var suggestions = e.response.results[0].responseText.split(/\r?\n/);
-
-							YUI().use("autocomplete", "autocomplete-filters", "autocomplete-highlighters", function (Y) {							    
-								  Y.one('#txtCommand').plug(Y.Plugin.AutoComplete, {
-								    resultFilters    : 'phraseMatch',
-								    resultHighlighter: 'phraseMatch',
-								    source           : suggestions
-								  })});
-							}
-				    };
-	
-				    myDataSource.sendRequest({
-				        request:"",
-				        callback:myCallback
-				    });
-				});
-			}
-
-			function loadAll() {
-				readLogFile();
-				loadSuggestions();
-			}
-		</script>
-		
-		<!-- For displaying a little spinner icon automatically when executing an AJAX command -->
+        <!-- Custom glucose ajax code -->
+		<script type="text/javascript" src="js/glucose_ajax.js"></script>
+		<!-- For displaying a little spinner icon automatically when executing an AJAX command-->
 		<script type="text/javascript">
+			// Cannot be placed inside a .js file hence over here
 			Ajax.Responders.register({
-			   onCreate: function() {
-			      if($('ajax-area'))
-			         $('ajax-area').update('<img src="${createLinkTo(dir:'images',file:'spinner.gif')}" border="0" alt="Loading..." title="Loading..." width="16" height="16" />');
-			}});
+				   onCreate: function() {
+				      if($('ajax-area'))
+				         $('ajax-area').update('<img src="${createLinkTo(dir:'images',file:'spinner.gif')}" border="0" alt="Loading..." title="Loading..." width="16" height="16" />');
+				}});
 		</script>
     </head>
     <body onload="loadAll()"  class="yui3-skin-sam  yui-skin-sam">

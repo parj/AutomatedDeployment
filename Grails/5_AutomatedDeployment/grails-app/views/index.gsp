@@ -86,7 +86,6 @@ THE SOFTWARE.
 
 			function readLogFile() {
 				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
-				var myDataSource;
 				
 				YUI().use("datasource-io", "datasource-polling", function(Y) {
 				    myDataSource = new Y.DataSource.IO({source:datafile}),
@@ -136,24 +135,27 @@ THE SOFTWARE.
 			//For autosuggest. Loads from suggestions.txt for custom command text area
 			function loadSuggestions() {
 				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "suggestions.txt"
-				var xmlhttp = getXMLHTTP();
-				xmlhttp.open("GET", datafile, true);
+				YUI().use("datasource-io", "datasource-textschema", function(Y) {
+				    myDataSource = new Y.DataSource.IO({source:datafile}),
+					myCallback = {
+			            success: function(e){
+				            //Split using new lines
+			            	var suggestions = e.response.results[0].responseText.split(/\r?\n/);
 
-				xmlhttp.onreadystatechange = function() {
-					//Response has been received => 4 and page exists => 200
-					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
-						var suggestions = xmlhttp.responseText.split(/\r?\n/);
-
-						YUI().use("autocomplete", "autocomplete-filters", "autocomplete-highlighters", function (Y) {							    
-							  Y.one('#txtCommand').plug(Y.Plugin.AutoComplete, {
-							    resultFilters    : 'phraseMatch',
-							    resultHighlighter: 'phraseMatch',
-							    source           : suggestions,
-							  });
-						})
-					}
-				}
-				xmlhttp.send(null);
+							YUI().use("autocomplete", "autocomplete-filters", "autocomplete-highlighters", function (Y) {							    
+								  Y.one('#txtCommand').plug(Y.Plugin.AutoComplete, {
+								    resultFilters    : 'phraseMatch',
+								    resultHighlighter: 'phraseMatch',
+								    source           : suggestions
+								  })});
+							}
+				    };
+	
+				    myDataSource.sendRequest({
+				        request:"",
+				        callback:myCallback
+				    });
+				});
 			}
 
 			function loadAll() {

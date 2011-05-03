@@ -27,6 +27,8 @@ THE SOFTWARE.
     <head>
         <title>Glucose - No es un burro!</title>
         <meta name="layout" content="main"></meta>
+        <!-- Disable caching -->
+        <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"></META>
         <link type="text/css" rel="stylesheet" href="css/layout.css"/>
 		<link type="text/css" rel="stylesheet" href="css/yui/fonts-min.css" />
         <g:javascript library="prototype"></g:javascript>
@@ -96,7 +98,7 @@ THE SOFTWARE.
 				            }
 				        }	
 					},
-					id = myDataSource.setInterval(500, request); //Poll every 500ms
+					id = myDataSource.setInterval(200, request); //Poll every 500ms
 				});
 			}
 

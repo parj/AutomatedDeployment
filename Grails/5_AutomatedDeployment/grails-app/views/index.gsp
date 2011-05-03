@@ -116,7 +116,7 @@ THE SOFTWARE.
 	    	
 	    	<!-- Force Refresh -->
 	    	<div class="submitToRemote">
-	    		<input type="button" id="buttonRefresh" onclick="readLogFile();" value="Click to Refresh (only if Required)"></input>
+	    		<input type="button" id="buttonRefresh" onclick="readLogFile(true);" value="Click to Refresh (only if Required)"></input>
 	    	</div>
 	    	<div class="spacer"></div>
 	    </div>

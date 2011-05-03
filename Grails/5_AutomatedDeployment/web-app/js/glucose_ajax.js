@@ -77,7 +77,8 @@ function getXMLHTTP() {
 }
 
 //Continuously refreshes the log textAreas
-function readLogFile() {
+//forceRefresh is boolean, if marked true it will forcible refresh
+function readLogFile(forceRefresh) {
 	var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
 	
 	YUI().use("datasource-io", "datasource-polling", function(Y) {
@@ -85,7 +86,7 @@ function readLogFile() {
 		request = {
 			callback : {
 	            success: function(e){
-					refreshLogs(e.response.results[0].responseText);
+					refreshLogs(e.response.results[0].responseText, forceRefresh);
 	            }
 	        }	
 		},
@@ -94,15 +95,16 @@ function readLogFile() {
 }
 
 //Refreshes the 2 log text areas
-function refreshLogs(feedback) {
+//forceRefresh is boolean, if marked true it will forcible refresh
+function refreshLogs(feedback, forceRefresh) {
 	var elLog = document.getElementById("txtLog");
 	var elLastTen = document.getElementById("txtLastTen");
-	var boolRefresh = false;
+	var boolRefresh = forceRefresh;
 	var elSubmit = document.getElementsByName("buttonSubmit");
 	
   	//The submit button is hidden, means command is being executed
 	//or values are not the same. Force Refresh.
-	if (elSubmit[0].style.display == 'none' || elLog.value != feedback) {
+	if (forceRefresh || elSubmit[0].style.display == 'none' || elLog.value != feedback) {
 		boolRefresh = true;
 	}
 	else {

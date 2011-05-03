@@ -185,14 +185,30 @@ THE SOFTWARE.
 				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
 				var elLog = document.getElementById("txtLog");
 				var elLastTen = document.getElementById("txtLastTen");
+				var elSubmit = document.getElementsByName("buttonSubmit");
+				var boolRefresh = false;
+
+				//The submit button is hidden, means command is being executed
+				//Force refresh
+				if (elSubmit[0].style.display == 'none') {
+					boolRefresh = true
+				}
 				
 				var xmlhttp = getXMLHTTP();
 				xmlhttp.open("GET", datafile, true);
 				
 				xmlhttp.onreadystatechange = function() {
+					//Response has been received => 4 and page exists => 200
 					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) { 
-						//To reduce flickering, if nothing has changed do not referesh
-						if (elLog.value != xmlhttp.responseText) {
+						//boolRefresh has been set to force refresh or values are not the same
+						if (boolRefresh || elLog.value != xmlhttp.responseText) {
+							boolRefresh = true;
+						}
+						else {
+							boolRefresh = false;
+						}
+						//To reduce textbox scrolling, if nothing has changed do not referesh
+						if (boolRefresh) {
 							//Set the log
 							elLog.value = xmlhttp.responseText;
 							

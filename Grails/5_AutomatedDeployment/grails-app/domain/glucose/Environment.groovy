@@ -15,4 +15,8 @@ class Environment {
 	String username
 	String password
 	String MX
+	
+	public String toString() {
+		return username + ":" + name + ":" + id
+	}
 }

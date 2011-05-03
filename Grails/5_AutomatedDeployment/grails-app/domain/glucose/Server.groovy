@@ -9,4 +9,8 @@ class Server {
 	
 	String hostname
 	String name
+	
+	public String toString() {
+		return name + ":" + hostname + ":" + id
+	}
 }

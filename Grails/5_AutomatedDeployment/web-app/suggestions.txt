@@ -1,5 +1,5 @@
-List all processes, /usr/ucb/ps -auxxxwww | grep -i `whoami`
-VMStat, vmstat
-Uptime, uptime
-ps,/usr/ucb/ps -auxxxwww | grep -i `whoami`
-ps,ps -fu `whoami`
+/usr/ucb/ps -auxxxwww | grep -i `whoami`
+vmstat
+uptime
+ps -fu `whoami`
+prstat

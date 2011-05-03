@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 -->
  
-<html>
+<html class="yui3-js-enabled">
     <head>
         <title><g:layoutTitle default="Grails" /></title>
         <link rel="stylesheet" href="${resource(dir:'css',file:'main.css')}" />
@@ -31,7 +31,7 @@ THE SOFTWARE.
         <g:layoutHead />
         <g:javascript library="application" />
     </head>
-    <body onload="${pageProperty(name:'body.onload')}">
+    <body onload="${pageProperty(name:'body.onload')}" class="${pageProperty(name:'body.class')}">
         <div id="spinner" class="spinner" style="display:none;">
             <img src="${resource(dir:'images',file:'spinner.gif')}" alt="${message(code:'spinner.alt',default:'Loading...')}" />
         </div>

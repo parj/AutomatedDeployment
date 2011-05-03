@@ -27,108 +27,11 @@ THE SOFTWARE.
     <head>
         <title>Glucose - No es un burro!</title>
         <meta name="layout" content="main"></meta>
-        <style type="text/css" media="screen">
-			body{
-			font-family:"Lucida Grande", "Lucida Sans Unicode", Verdana, Arial, Helvetica, sans-serif;
-			font-size:12px;
-			}
-			p, h1, form, button{border:0; margin:0; padding:0;}
-        	.spacer{clear:both; height:1px;}
-        	/* ----------- My Form ----------- */
-			.myform{
-			margin:0 auto;
-			width:auto;
-			padding:1px;
-			}
-			/* ----------- stylized ----------- */
-			#stylized{
-			border:solid 2px #b7ddf2;
-			background:#ebf4fb;
-			}
-			#stylized h1 {
-			font-size:14px;
-			font-weight:bold;
-			margin-bottom:8px;
-			}
-			#stylized p{
-			font-size:11px;
-			color:#666666;
-			margin-bottom:20px;
-			border-bottom:solid 1px #b7ddf2;
-			padding-bottom:10px;
-			}
-			#stylized label{
-			display:block;
-			font-weight:bold;
-			text-align:right;
-			width:140px;
-			float:left;
-			padding:0px 5px;
-			}
-			#stylized .labelFloatLeft{
-			float:left;
-			font-weight:bold;
-			text-align:right;
-			width:140px;
-			margin:2px 0 20px 10px;
-			}
-			#stylized .small{
-			color:#666666;
-			display:block;
-			font-size:11px;
-			font-weight:normal;
-			text-align:right;
-			width:140px;
-			}
-			#stylized input{
-			float:left;
-			font-size:12px;
-			padding:4px 2px;
-			border:solid 1px #aacfe4;
-			width:210px;
-			margin:1px 0 20px 10px;
-			}
-			#stylized .inputtxtCommand{
-			float:left;
-			font-size:12px;
-			padding:4px 2px;
-			width:200px;
-			margin:-26px 0px 0px 140px;
-			}
-			#stylized button{
-			clear:both;
-			margin-left:150px;
-			width:200px;
-			height:31px;
-			background:#666666 url(img/button.png) no-repeat;
-			text-align:center;
-			line-height:31px;
-			color:#FFFFFF;
-			font-size:11px;
-			font-weight:bold;
-			}
-			
-			#stylized .submitToRemote{
-			margin:0px 0px 0px 139px;
-			width:200px;
-			height:31px;
-			padding:0px 0px;
-			text-align:center;
-			line-height:31px;
-			font-size:11px;
-			font-weight:bold;
-			}
-			
-			/* -- For the autocomplete -- */
-			.autocomplete-w1 { background:url(img/shadow.png) no-repeat bottom right; position:absolute; top:0px; left:0px; margin:6px 0 0 6px; /* IE6 fix: */ _background:none; _margin:1px 0 0 0; }
-			.autocomplete { border:1px solid #999; background:#FFF; cursor:default; text-align:left; max-height:350px; overflow:auto; margin:-6px 6px 6px -6px; /* IE6 specific: */ _height:350px;  _margin:0; _overflow-x:hidden; }
-			.autocomplete .selected { background:#F0F0F0; }
-			.autocomplete div { padding:2px 5px; white-space:nowrap; overflow:hidden; }
-			.autocomplete strong { font-weight:normal; color:#3399FF; }
-        </style>
+        <link type="text/css" rel="stylesheet" href="css/layout.css"/>
+		<link type="text/css" rel="stylesheet" href="css/fonts-min.css" />
         <g:javascript library="prototype"></g:javascript>
         <g:javascript library="scriptaculous"></g:javascript>
-        
+        <g:javascript library="yui-min"></g:javascript>
 
         
         <script type="text/javascript">
@@ -226,11 +129,31 @@ THE SOFTWARE.
 				setTimeout("readLogFile()",100);
 			}
 
-			
+			function loadSuggestions() {
+				var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "suggestions.txt"
+				var xmlhttp = getXMLHTTP();
+				xmlhttp.open("GET", datafile, true);
+
+				xmlhttp.onreadystatechange = function() {
+					//Response has been received => 4 and page exists => 200
+					if (xmlhttp.readyState == 4 && xmlhttp.status == 200) {
+						var suggestions = xmlhttp.responseText.split(/\r?\n/);
+
+						YUI().use("autocomplete", "autocomplete-filters", "autocomplete-highlighters", function (Y) {							    
+							  Y.one('#txtCommand').plug(Y.Plugin.AutoComplete, {
+							    resultFilters    : 'phraseMatch',
+							    resultHighlighter: 'phraseMatch',
+							    source           : suggestions,
+							  });
+						})
+					}
+				}
+				xmlhttp.send(null);
+			}
 
 			function loadAll() {
 				readLogFile();
-				//loadSuggestions();
+				loadSuggestions();
 			}
 		</script>
 		
@@ -241,10 +164,9 @@ THE SOFTWARE.
 			      if($('ajax-area'))
 			         $('ajax-area').update('<img src="${createLinkTo(dir:'images',file:'spinner.gif')}" border="0" alt="Loading..." title="Loading..." width="16" height="16" />');
 			}});
-
 		</script>
     </head>
-    <body onload="loadAll()">
+    <body onload="loadAll()"  class="yui3-skin-sam  yui-skin-sam">
     	<div id="stylized" class="myform">
     		<!-- FORM TO SUBMIT REQUEST -->
 	        <g:form id="frmCommand">

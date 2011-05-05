@@ -14,6 +14,7 @@ web-app/WEB-INF/classes/
 # Logs and databases #
 ######################
 *.log
+*.log.*
 
 # OS generated files #
 ######################

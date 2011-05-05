@@ -58,7 +58,10 @@ THE SOFTWARE.
 	        <g:form id="frmCommand">
 	        	<h1>Glucose - Automated env management</h1>
 	        	<p>No es un burro!</p>
-
+	        	<div class="topmenu">
+		    		<a href="environment/list">List Environments</a> | <a href="server/list">List Servers</a>
+		    	</div>
+	        	
 	      		<!-- List all environments -->
 	      		<label>Environments
 	      			<span class="small">Select your environment</span>
@@ -79,14 +82,13 @@ THE SOFTWARE.
 		            	</g:each>
 		            	<option selected="selected">Custom Command</option>
 		           	</select>
+		           	<!--  Custom input text command -->
+		           	<div class="inputtxtCommand">
+			           	<!-- Custom command text field, will only be visible if Custom Command is selected -->
+			           	<input name="txtCommand" id="txtCommand" size="35" placeholder="Type Custom Command, Ex. ls " type="search" list="commonCommands"></input>
+			 		</div>
 	           	</div>
 	           	
-	           	<!--  Custom input text command -->
-	           	<div class="inputtxtCommand">
-		           	<!-- Custom command text field, will only be visible if Custom Command is selected -->
-		           	<input name="txtCommand" id="txtCommand" size="35" placeholder="Type Custom Command, Ex. ls " type="search" list="commonCommands"></input>
-		 		</div>
-		 		
 	           	<div class="spacer"></div>
 				
 				<!-- AJAX Remote Submit. It

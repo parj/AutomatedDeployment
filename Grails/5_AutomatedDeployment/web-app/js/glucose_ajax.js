@@ -81,6 +81,26 @@ function getXMLHTTP() {
 function readLogFile(forceRefresh) {
 	var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
 	
+	var xmlhttp = getXMLHTTP();
+	xmlhttp.open("GET", datafile, true);
+	
+	xmlhttp.onreadystatechange = function() {
+		//Response has been received => 4 and page exists => 200
+		if (xmlhttp.readyState == 4 && xmlhttp.status == 200) { 
+			refreshLogs(xmlhttp.responseText, forceRefresh);
+		}
+	}
+	xmlhttp.send(null);
+	setTimeout("readLogFile()",100);
+}
+
+//Issue with caching in Webkit - always loads from Cache. Commented out for now
+//Continuously refreshes the log textAreas
+//forceRefresh is boolean, if marked true it will forcible refresh
+/*
+function readLogFile(forceRefresh) {
+	var datafile = window.location.href.substring(0, window.location.href.lastIndexOf("/") + 1) + "sshLogAppender.log"
+	
 	YUI().use("datasource-io", "datasource-polling", function(Y) {
 	    myDataSource = new Y.DataSource.IO({source:datafile}),
 		request = {
@@ -92,7 +112,7 @@ function readLogFile(forceRefresh) {
 		},
 		id = myDataSource.setInterval(200, request); //Poll every 500ms
 	});
-}
+}*/
 
 //Refreshes the 2 log text areas
 //forceRefresh is boolean, if marked true it will forcible refresh

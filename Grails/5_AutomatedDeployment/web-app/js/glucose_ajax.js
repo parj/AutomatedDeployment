@@ -151,7 +151,8 @@ function refreshLogs(feedback, forceRefresh) {
 		var split = feedback.split(/\r?\n/);
 		var combine = "";
 		for (i = 0; i < 10; ++i) {
-			combine = combine + split[split.length - (i + 2)] + "\n";
+			if (split[split.length - (i + 2)] != null)	//Array element does not exist - ignore
+				combine = combine + split[split.length - (i + 2)] + "\n";
 		}
 		elLastTen.value = combine;
 	}

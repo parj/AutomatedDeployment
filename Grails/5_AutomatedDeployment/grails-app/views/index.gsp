@@ -77,10 +77,17 @@ THE SOFTWARE.
 	      		<div class="input">
 		           	<!-- List all available commands -->
 		          	<select name="listCommand" id="listCommand" onchange="changeTxtCommand()">
-		           		<g:each var="command" in="${glucose.Utilities.listMethods()}">
-		            		<option>${command}</option>
-		            	</g:each>
-		            	<option selected="selected">Custom Command</option>
+		          		<OPTGROUP LABEL="Utilities">
+		           			<g:each var="command" in="${glucose.Utilities.listMethods()}">
+		           				<!-- Set the value to class name & function Ex. Utilities._uptime.
+		           					 However for easier readibility set the label to just _uptime, 
+		           					 but strip out the underscore. Hence the substring in label -->
+		            			<option value="Utilities.${command}" label="${command.substring(1, command.size())}"></option>
+		            		</g:each>
+		            	</OPTGROUP>
+		            	<OPTGROUP LABEL="Custom">
+		            		<option selected="selected">Custom Command</option>
+		            	</OPTGROUP>
 		           	</select>
 		           	<!--  Custom input text command -->
 		           	<div class="inputtxtCommand">

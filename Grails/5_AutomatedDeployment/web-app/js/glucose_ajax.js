@@ -34,6 +34,16 @@ function toggleTxtCommand() {
 		el.style.display = 'none';
 }
 
+function changeTxtCommand() {
+	var el = document.getElementById("txtCommand");
+	var list = document.getElementById("listCommand");
+
+	if (list.value == 'Custom Command') 
+		el.placeholder = 'Execute Custom Command, Ex. ls ';
+	else
+		el.placeholder = 'Type an argument, Ex. java';
+}
+
 //Hiding submit button during execution
 function hideSubmit() {
 	var el = document.getElementsByName("buttonSubmit");

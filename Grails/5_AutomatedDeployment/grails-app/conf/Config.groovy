@@ -98,7 +98,7 @@ log4j = {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
 	appenders {
-			rollingFile name:"sshLogAppender", layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c{2} %m%n'), file:"./web-app/sshLogAppender.log"
+			rollingFile name:"sshLogAppender", layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c{2} %m%n'), file:"./web-app/sshLogAppender.log", maxFileSize:1024
 	}
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers

@@ -76,7 +76,7 @@ THE SOFTWARE.
 	      		</label>
 	      		<div class="input">
 		           	<!-- List all available commands -->
-		          	<select name="listCommand" id="listCommand" onchange="toggleTxtCommand()">
+		          	<select name="listCommand" id="listCommand" onchange="changeTxtCommand()">
 		           		<g:each var="command" in="${glucose.Utilities.listMethods()}">
 		            		<option>${command}</option>
 		            	</g:each>
@@ -85,7 +85,7 @@ THE SOFTWARE.
 		           	<!--  Custom input text command -->
 		           	<div class="inputtxtCommand">
 			           	<!-- Custom command text field, will only be visible if Custom Command is selected -->
-			           	<input name="txtCommand" id="txtCommand" size="35" placeholder="Type Custom Command, Ex. ls " type="search" list="commonCommands"></input>
+			           	<input name="txtCommand" id="txtCommand" size="35" placeholder="Execute Custom Command, Ex. ls " type="search" list="commonCommands"></input>
 			 		</div>
 	           	</div>
 	           	

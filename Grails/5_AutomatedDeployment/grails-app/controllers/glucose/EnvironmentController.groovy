@@ -36,8 +36,20 @@ class EnvironmentController {
 			else {
 				logger.trace("Not running custom command")
 				logger.trace("Started glucose.Utilities.${command}")
+			
+				def arguments = params['txtCommand']
+				logger.trace("Arguments - ${arguments}")
 				
-				glucose.Utilities."${command}"()
+				//If argument has been provided
+				if (arguments.size() > 0) {
+					logger.trace("Started glucose.Utilities.\"${command}\"(${arguments})")
+					glucose.Utilities."${command}"(arguments)
+					logger.trace("Completed glucose.Utilities.\"${command}\"(${arguments})")
+				} else {
+					logger.trace("Started glucose.Utilities.\"${command}\"()")
+					glucose.Utilities."${command}"()
+					logger.trace("Completed glucose.Utilities.\"${command}\"()")
+				}
 
 				logger.trace("Completed glucose.Utilities.${command}")
 			}

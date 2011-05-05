@@ -91,6 +91,30 @@ class Utilities {
 		runCommand("uptime")
 	}
 	
+	static void _listProcesses() {
+		runCommand("ps -efu `whoami`")
+	}
+	
+	static void _listProcesses(processStringToSearch) {
+		runCommand("ps -ef | grep -i ${processStringToSearch} | grep -v grep")
+	}
+	
+	static void _listPIDs(processStringToSearch) {
+		runCommand("ps -ef | grep -i ${processStringToSearch} | grep -v grep | awk '{print \$2}' ")
+	}
+	
+	static void _killPID(PID) {
+		runCommand("kill ${PID}")
+	}
+	
+	static void _kill9PID(PID) {
+		runCommand("kill -9 ${PID}")
+	}
+	
+	static void _fuserK(path) {
+		runCommand("fuser -k ${path}")
+	}
+	
 	static ArrayList listMethods() {
 		def methods = Utilities.metaClass.methods.collect { method->method.name }.sort().unique()
 		def discoveredMethods = methods.findAll { method->method.startsWith('_') && !method.startsWith('__')}

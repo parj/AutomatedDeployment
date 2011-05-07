@@ -1,5 +1,4 @@
 package glucose
-
 /**
 * Copyright (c) 2011 Parjanya Mudunuri. All rights reserved.
 *
@@ -23,8 +22,24 @@ package glucose
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 * THE SOFTWARE.
 */
+class Audit {
 
-
-class ServerController {
-	def scaffold = true
+    static constraints = {
+		timeStamp(blank:false)
+		environment(blank:false)
+		user(nullable:true)		//Will be null if the user has not logged in
+		ipAddress(blank:false)
+		command(blank:false)
+		status(blank:false)
+		userAgent(blank:false)
+    }
+	
+	java.sql.Timestamp timeStamp
+	String environment
+	String ipAddress
+	String command
+	String status
+	String userAgent
+	String user
+	
 }

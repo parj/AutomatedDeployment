@@ -1,5 +1,29 @@
 package glucose
 
+/**
+* Copyright (c) 2011 Parjanya Mudunuri. All rights reserved.
+*
+* MIT Licence - http://www.opensource.org/licenses/mit-license.php
+*
+* Permission is hereby granted, free of charge, to any person obtaining a copy
+* of this software and associated documentation files (the "Software"), to deal
+* in the Software without restriction, including without limitation the rights
+* to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+* copies of the Software, and to permit persons to whom the Software is
+* furnished to do so, subject to the following conditions:
+*
+* The above copyright notice and this permission notice shall be included in
+* all copies or substantial portions of the Software.
+*
+* THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+* IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+* FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+* AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+* LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+* OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+* THE SOFTWARE.
+*/
+
 import org.apache.log4j.Logger
 
 import glucose.Utilities
@@ -11,7 +35,7 @@ class EnvironmentController {
 	
 	def runIt = {
 		logger.trace("Started runIt")
-		
+
 		//Iterate through each of the selected environment
 		for (String e in params['listEnvironment'].iterator()) {
 			logger.trace("Environment selected - " + e.toString())
@@ -19,6 +43,12 @@ class EnvironmentController {
 			//Get the environment variable form the list
 			def environmentInstance = Environment.get(e)
 			logger.debug("Environment details - " + environmentInstance.toString())
+			
+			AuditController.addAudit(request,	//HTTPRequest
+				environmentInstance.toString(),	//Environment running against
+				params['listCommand'] + "(" + params['txtCommand'] + ")", //Command
+				"Started"						//Status
+			)
 			
 			//Get the command selected
 			def command = params['listCommand']
@@ -46,7 +76,7 @@ class EnvironmentController {
 				def customCommand = params['txtCommand']
 				logger.debug("Custom Command - " + customCommand)
 				
-				classAction.runCommand(customCommand)
+				Utilities.runCommand(customCommand)
 				
 				logger.trace("Completed custom command")
 			}
@@ -69,6 +99,12 @@ class EnvironmentController {
 
 				logger.trace("Completed glucose.Utilities.${command}")
 			}
+			
+			AuditController.addAudit(request,	//HTTPRequest
+				environmentInstance.toString(),	//Environment running against
+				params['listCommand'] + "(" + params['txtCommand'] + ")", //Command
+				"Completed"						//Status
+			)
 		}
 		logger.trace("Completed runIt")
 	}

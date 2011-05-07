@@ -1,5 +1,4 @@
 package glucose
-
 /**
 * Copyright (c) 2011 Parjanya Mudunuri. All rights reserved.
 *
@@ -24,7 +23,32 @@ package glucose
 * THE SOFTWARE.
 */
 
+import org.apache.log4j.Logger;
+import java.sql.Timestamp;
 
-class ServerController {
+class AuditController {
+	private static Logger logger = Logger.getLogger(AuditController.class)
 	def scaffold = true
+	
+	static Audit addAudit(httpRequest, env, commandInvoked, statusOfRequest) {
+		logger.trace("Started addAudit")
+		
+		def audit = new Audit(
+							timeStamp:new java.sql.Timestamp(Calendar.getInstance().getTime().getTime()),
+							environment: env.toString(),
+							ipAddress: httpRequest.getRemoteAddr(),
+							userAgent: httpRequest.getHeader("User-Agent"),
+							command: commandInvoked,
+							status: statusOfRequest,
+							user: httpRequest.getRemoteUser())
+		
+		audit.save()
+		if (audit.hasErrors()) {
+			println audit.errors
+			logger.error audit.errors
+		}
+		logger.trace("Completed addAudit")
+		
+		return audit
+	}
 }

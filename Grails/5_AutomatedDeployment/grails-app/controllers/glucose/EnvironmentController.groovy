@@ -40,10 +40,11 @@ class EnvironmentController {
 		for (String e in params['listEnvironment'].iterator()) {
 			logger.trace("Environment selected - " + e.toString())
 			
-			//Get the environment variable form the list
+			//Get the environment variable from the list
 			def environmentInstance = Environment.get(e)
 			logger.debug("Environment details - " + environmentInstance.toString())
 			
+			//Add audit - Event START
 			AuditController.addAudit(request,	//HTTPRequest
 				environmentInstance.toString(),	//Environment running against
 				params['listCommand'] + "(" + params['txtCommand'] + ")", //Command
@@ -69,37 +70,22 @@ class EnvironmentController {
 			
 			logger.trace("Setting environment " + environmentInstance.toString())
 			Utilities.setEnvironment environmentInstance
+		
+			def arguments = params['txtCommand']
+			logger.debug("Arguments - ${arguments}")
 			
-			if (command.equals("Custom Command")) {
-				logger.trace("Started custom command")
-				
-				def customCommand = params['txtCommand']
-				logger.debug("Custom Command - " + customCommand)
-				
-				Utilities.runCommand(customCommand)
-				
-				logger.trace("Completed custom command")
-			}
-			else {
-				logger.trace("Started ${className}.${action}")
-			
-				def arguments = params['txtCommand']
-				logger.trace("Arguments - ${arguments}")
-				
-				//If argument has been provided
-				if (arguments.size() > 0) {
-					logger.trace("Started ${className}.\"${action}\"(${arguments})")
-					classAction."${acton}"(arguments)
-					logger.trace("Completed ${className}.\"${action}\"(${arguments})")
-				} else {
-					logger.trace("Started ${className}.\"${action}\"()")
-					classAction."${action}"()
-					logger.trace("Completed ${className}.\"${action}\"()")
-				}
-
-				logger.trace("Completed glucose.Utilities.${command}")
+			//If argument has been provided
+			if (arguments.size() > 0) {
+				logger.trace("Started ${className}.\"${action}\"(${arguments})")
+				classAction."${action}"(arguments)
+				logger.trace("Completed ${className}.\"${action}\"(${arguments})")
+			} else {
+				logger.trace("Started ${className}.\"${action}\"()")
+				classAction."${action}"()
+				logger.trace("Completed ${className}.\"${action}\"()")
 			}
 			
+			//Add audit - Event COMPLETE
 			AuditController.addAudit(request,	//HTTPRequest
 				environmentInstance.toString(),	//Environment running against
 				params['listCommand'] + "(" + params['txtCommand'] + ")", //Command

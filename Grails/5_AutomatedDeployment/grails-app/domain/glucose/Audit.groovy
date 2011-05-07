@@ -27,11 +27,11 @@ class Audit {
     static constraints = {
 		timeStamp(blank:false)
 		environment(blank:false)
-		user(nullable:true)		//Will be null if the user has not logged in
 		ipAddress(blank:false)
 		command(blank:false)
 		status(blank:false)
 		userAgent(blank:false)
+		user(nullable:true)		//Will be null if the user has not logged in
     }
 	
 	java.sql.Timestamp timeStamp

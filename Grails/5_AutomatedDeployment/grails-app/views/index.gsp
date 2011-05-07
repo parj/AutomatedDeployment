@@ -86,7 +86,7 @@ THE SOFTWARE.
 		            		</g:each>
 		            	</OPTGROUP>
 		            	<OPTGROUP LABEL="Custom">
-		            		<option selected="selected">Custom Command</option>
+		            		<option selected="selected" value="Utilities.runCommand" label="Custom Command"></option>
 		            	</OPTGROUP>
 		           	</select>
 		           	<!--  Custom input text command -->

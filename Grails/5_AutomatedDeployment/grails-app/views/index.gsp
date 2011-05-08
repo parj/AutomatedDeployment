@@ -40,6 +40,7 @@ THE SOFTWARE.
         <g:javascript library="scriptaculous"></g:javascript>
         <!-- YUI Library -->
         <g:javascript library="yui-min"></g:javascript>
+        <g:javascript library="md5-min"></g:javascript>
         <!-- Custom glucose ajax code -->
 		<script type="text/javascript" src="js/glucose_ajax.js"></script>
 		<!-- For displaying a little spinner icon automatically when executing an AJAX command-->
@@ -82,11 +83,11 @@ THE SOFTWARE.
 		           				<!-- Set the value to class name & function Ex. Utilities._uptime.
 		           					 However for easier readibility set the label to just _uptime, 
 		           					 but strip out the underscore. Hence the substring in label -->
-		            			<option value="Utilities.${command}" label="${command.substring(1, command.size())}"></option>
+		            			<option value="Utilities.${command}" label="${command.substring(1, command.size())}">${command.substring(1, command.size())}</option>
 		            		</g:each>
 		            	</OPTGROUP>
 		            	<OPTGROUP LABEL="Custom">
-		            		<option selected="selected" value="Utilities.runCommand" label="Custom Command"></option>
+		            		<option selected="selected" value="Utilities.runCommand" label="Custom Command">Custom Command</option>
 		            	</OPTGROUP>
 		           	</select>
 		           	<!--  Custom input text command -->

@@ -101,7 +101,7 @@ function readLogFile(forceRefresh) {
 		}
 	}
 	xmlhttp.send(null);
-	setTimeout("readLogFile()",100);
+	setTimeout("readLogFile(false)",400);
 }
 
 //Issue with caching in Webkit - always loads from Cache. Commented out for now
@@ -129,12 +129,14 @@ function readLogFile(forceRefresh) {
 function refreshLogs(feedback, forceRefresh) {
 	var elLog = document.getElementById("txtLog");
 	var elLastTen = document.getElementById("txtLastTen");
-	var boolRefresh = forceRefresh;
 	var elSubmit = document.getElementsByName("buttonSubmit");
+	
+	var boolRefresh = forceRefresh;
+	var md5Feedback =  hex_md5(feedback);
 	
   	//The submit button is hidden, means command is being executed
 	//or values are not the same. Force Refresh.
-	if (forceRefresh || elSubmit[0].style.display == 'none' || elLog.value != feedback) {
+	if (forceRefresh || elSubmit[0].style.display === 'none' || md5txtLog != md5Feedback) {
 		boolRefresh = true;
 	}
 	else {
@@ -145,6 +147,7 @@ function refreshLogs(feedback, forceRefresh) {
 	if (boolRefresh) {
 		//Set the log
 		elLog.value = feedback;
+		md5txtLog = hex_md5(elLog.value);
 		
 		//Reverse the order of the sentences so that latest
 		//is on top
@@ -186,7 +189,7 @@ function loadSuggestions() {
 
 //Called during Body Load
 function loadAll() {
-	readLogFile();
+	readLogFile(true);
 	loadSuggestions();
 }
 

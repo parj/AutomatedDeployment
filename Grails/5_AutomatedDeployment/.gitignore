@@ -6,6 +6,7 @@
 *.exe
 *.o
 *.so
+*.war
 target/
 plugin-classes/
 resources/

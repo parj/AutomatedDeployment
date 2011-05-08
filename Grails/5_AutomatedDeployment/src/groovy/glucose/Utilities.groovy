@@ -27,12 +27,28 @@ package glucose
 import java.util.ArrayList;
 
 import org.apache.log4j.Logger
+import org.apache.log4j.PatternLayout
+import org.apache.log4j.RollingFileAppender
 import glucose.Environment
 import glucose.Server
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class Utilities {
 	private static Logger logger = Logger.getLogger(Utilities.class)
 	private static Environment environment
+	
+	static void createRollingSSHAppender() {
+		logger.trace("Started createRollingSSHAppender")
+		
+		def rollingFileAppender = new RollingFileAppender(
+								new PatternLayout("%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c{2} %m%n"), 
+								ConfigurationHolder.config.glucose.sshLogAppender, 
+								true)
+		rollingFileAppender.setMaxFileSize("5MB")
+		logger.addAppender rollingFileAppender
+		
+		logger.trace("Completed createRollingSSHAppender")
+	}
 	
 	//Assumes environment variable is set
 	static boolean runCommand(command) {
@@ -64,7 +80,7 @@ class Utilities {
 				password:password,
 				username:username,
 				command:command,
-				output:"web-app/sshLogAppender.log",
+				output:ConfigurationHolder.config.glucose.sshLogAppender,
 				append:"yes",
 				trust:"yes")
 			

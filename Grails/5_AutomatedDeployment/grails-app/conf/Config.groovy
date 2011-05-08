@@ -89,6 +89,13 @@ environments {
 
 }
 
+glucose.sshLogAppenderFile = "sshLogAppender.log"
+
+//Will be set by BootStrap.groovy
+//Path of web-app
+glucose.localPath = "."
+glucose.sshLogAppenderPath = glucose.localPath + "/" + glucose.sshLogAppenderFile
+
 // log4j configuration
 log4j = {
     // Example of changing the log pattern for the default console
@@ -98,7 +105,7 @@ log4j = {
     //    console name:'stdout', layout:pattern(conversionPattern: '%c{2} %m%n')
     //}
 	appenders {
-			rollingFile name:"sshLogAppender", layout:pattern(conversionPattern: '%d{yyyy-MM-dd HH:mm:ss,SSS} %p %c{2} %m%n'), file:"./web-app/sshLogAppender.log", maxFileSize:10240
+			//sshLogApender will be dynamically created in BootStrap.groovy
 	}
 
     error  'org.codehaus.groovy.grails.web.servlet',  //  controllers
@@ -112,10 +119,11 @@ log4j = {
            'org.springframework',
            'org.hibernate',
            'net.sf.ehcache.hibernate'
-
+	
+    trace   'BootStrap'
     warn   'org.mortbay.log'
 	debug  'glucose.Utilities'
 	debug   'org.apache.tools.ant.taskdefs'
-	debug  sshLogAppender:'glucose.Utilities'
+	//debug  sshLogAppender:'glucose.Utilities'
 	debug  'glucose.EnvironmentController'
 }

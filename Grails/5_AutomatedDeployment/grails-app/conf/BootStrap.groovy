@@ -1,5 +1,9 @@
 import grails.util.GrailsUtil
 
+import org.apache.log4j.Logger
+import org.codehaus.groovy.grails.commons.ApplicationHolder
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
+
 import glucose.Environment
 import glucose.Server
 import glucose.Utilities
@@ -30,16 +34,32 @@ import glucose.LocalDevEnvironments
 */
 
 class BootStrap {
-
+	private static Logger logger = Logger.getLogger(BootStrap.class)
     def init = { servletContext ->
 		switch(GrailsUtil.environment){
 			case "development":
+				logger.info("Setting up Development environments")
 				glucose.LocalDevEnvironments.CreateDevEnvironments()
 			break
 			case "production":
 			break
 		}
-    }
+		
+		//SET UP THE GLUCOSE PATHS - These are dynamic because if the WAR file is deployed
+		//The locations of the local path of deployment will defer server to server
+		logger.info("Setting up glucose.localPath")
+		def realPath = ApplicationHolder.application.parentContext.servletContext.getRealPath(ConfigurationHolder.config.grails.serverURL).split("/http")
+		logger.trace("realPath - " + realPath)
+		
+		ConfigurationHolder.config.glucose.localPath = realPath[0]
+		logger.trace("glucose.localPath - " + ConfigurationHolder.config.glucose.localPath)
+		
+		ConfigurationHolder.config.glucose.sshLogAppender = realPath[0] + "/" + ConfigurationHolder.config.glucose.sshLogAppenderFile
+		logger.trace("glucose.sshLogAppender - " + ConfigurationHolder.config.glucose.sshLogAppender)
+		
+		//This is so that the Utilities class writes to the SSHLog file
+		Utilities.createRollingSSHAppender()
+	}
     def destroy = {
     }
 }

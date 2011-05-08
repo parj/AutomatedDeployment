@@ -28,6 +28,7 @@ import org.apache.log4j.Logger
 
 import glucose.Utilities
 import glucose.Murex
+import org.codehaus.groovy.grails.commons.ConfigurationHolder
 
 class EnvironmentController {
 	def scaffold = true
@@ -35,7 +36,10 @@ class EnvironmentController {
 	
 	def runIt = {
 		logger.trace("Started runIt")
-
+		println("RealPath: " + (servletContext.getRealPath(ConfigurationHolder.config.grails.serverURL).split("http")))
+		def realPath = servletContext.getRealPath(ConfigurationHolder.config.grails.serverURL).split("http")
+		println realPath[0]
+		
 		//Iterate through each of the selected environment
 		for (String e in params['listEnvironment'].iterator()) {
 			logger.trace("Environment selected - " + e.toString())

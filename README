@@ -1,1 +1,30 @@
-Empty file for initial commit
+This is a proof of concept developed for simple automated deployement tools that can help environment managers distribute and deploy environments consistently
+
+There are three different tools developed here
+
+=========================================================
+1/ Grails/5_AutomatedDeployment => Written in Groovy using the Grails framework
+
+I intended to create a website that can be used for managing environments. You add environments via the web and select the command to be run.
+
+The issue I ran into this was with AJAX piping back the ssh execution. I did a workaround by piping the java ssh into a log by using ant to invoke sshexec. And then using AJAX to refresh the front end of the screen with the log file piped back.
+
+Slow in IE, ok with Firefox and fast in Chrome. Only reason being - no matter how many times I called the refresh, Chrome ignored it if the text hadn't changed.
+
+=========================================================
+2/ Java/4_AutomatedDeployment => Written in Groovy, simple Ant ssh exec to invoke tasks. Let's say I want to run uptime
+
+./run.sh server_local Utilities.uptime
+
+./run.sh <Name of the server defined in Environments.groovy> <Name of the module>.<Function Name>
+
+This was designed after Fabric and I seemed to have reached a point where everything works. 
+
+There seems to be a minor bug with the SSHExec task, some of the ssh output does not displayed on the screen, if a log file is supplied all the info is there
+
+=========================================================
+3/ Python/3_AutomatedDeployment => This is just Fabric and I implemented some random functionality for an application, just to see if it would work.
+
+Yes, it did.
+
+Abandoned this, as I would have to deploy this on Solaris and getting python 2.6/.7 setup and all the modules for Fabric would have meant getting all the supporting libs compiling and supporting them.
